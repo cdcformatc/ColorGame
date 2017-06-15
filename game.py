@@ -57,6 +57,7 @@ class Player():
         print 'Collision:', collisions
         
         if not collisions:
+            print [str(cat) for cat in self.categories]
             return topic_cat
         
         a_list = [i for i in collisions if i < h]
@@ -85,16 +86,11 @@ class Player():
             cat1 = ((a+h)/2,topic_cat.max)
             cat2 = ()
             
-        print cat0,cat1,cat2
         self.categories.remove(topic_cat)
-        
-        c0 = Category(cat0,topic_cat.names+[Name()])
-        self.categories.append(c0)
-        c1 = Category(cat1,topic_cat.names+[Name()])
-        self.categories.append(c1)
+        self.categories.append(Category(cat0,topic_cat.names+[Name()]))
+        self.categories.append(Category(cat1,topic_cat.names+[Name()]))
         if cat2:
-            c2 = Category((0,360),topic_cat.names+[Name()])
-            self.categories.append(c2)
+            self.categories.append(Category(cat2,topic_cat.names+[Name()]))
         
         print [str(cat) for cat in self.categories]
         raw_input()
