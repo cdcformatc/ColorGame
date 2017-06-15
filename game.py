@@ -33,6 +33,9 @@ class Category():
     def is_in(self, i):
         return self.min <= i < self.max
         
+    def is_word(self, word):
+        return (word in self.names)
+        
     def __str__(self):
         return '{} {} {}'.format(self.min, self.max, ','.join(str(n) for n in self.names))
 
@@ -51,10 +54,7 @@ class Player():
                 topic_cat = cat
                 break
         
-        print topic_cat
-        
         collisions = [obj for obj in rest if topic_cat.is_in(obj)]
-        print 'Collision:', collisions
         
         if not collisions:
             print [str(cat) for cat in self.categories]
@@ -67,8 +67,6 @@ class Player():
         
         a = max(a_list)
         b = min(b_list)
-        
-        print a,b
         
         if a > b:
             a,b = b,a
@@ -92,6 +90,25 @@ class Player():
         if cat2:
             self.categories.append(Category(cat2,topic_cat.names+[Name()]))
         
+        for cat in self.categories:
+            if cat.is_in(h):
+                topic_cat = cat
+                break
+                
+        return topic_cat
+        
+    def listen(self, scene, word):
+        #The hearer receives the transmitted word and,
+        #looking at its repertoire, identifies the set of all categories
+        topic_cats = []
+        #(i) whose inventories contain the transmitted word and
+        for cat in self.categories:
+            if cat.is_word(word):
+        #(ii) that are associated to at least one object in the scene
+                for color in scene:
+                    if cat.is_in(color):
+                        topic_cats.append(cat)
+                        break
         print [str(cat) for cat in self.categories]
         raw_input()
         
@@ -102,8 +119,8 @@ def game(iterations):
     players = [Player(str(i)) for i in range(num_players)]
     
     for t in range(iterations):
-        s,h = random.sample(players,2)
-        print "Speaker {} Hearer {}".format(s.name,h.name)
+        speaker,hearer = random.sample(players,2)
+        print "Speaker {} Hearer {}".format(speaker.name,hearer.name)
         
         M = 5
         items = range(360)
@@ -111,7 +128,13 @@ def game(iterations):
         items = items[0:M]
         print "Scene {}".format(items)
         
-        s.perceive(items)
+        topic_cat = speaker.perceive(items)
+        word = topic_cat.preferred
+        
+        print topic_cat
+        print word
+        
+        hearer.listen(items,word)
         
     
 if __name__== "__main__":
