@@ -1,11 +1,13 @@
 from __future__ import division
+
 import random
 
 MAX_PLAYERS = 10
 
-class Wordlist():
+
+class Wordlist:
     def __init__(self):
-        self.nouns = [word.strip() for word in open("noun_list.txt","r")]
+        self.nouns = [word.strip() for word in open("noun_list.txt", "r")]
         self.words = []
         
     def random_noun(self):
@@ -15,7 +17,8 @@ class Wordlist():
                 self.words.append(word)
                 return word
 
-class Name():
+
+class Name:
     def __init__(self):
         self.n = words.random_noun()
         self.s = 100
@@ -23,10 +26,11 @@ class Name():
     def __str__(self):
         return self.n
 
-class Category():
-    def __init__(self, range, names):
-        self.min = range[0]
-        self.max = range[1]
+
+class Category:
+    def __init__(self, cat_range, names):
+        self.min = cat_range[0]
+        self.max = cat_range[1]
         self.names = names
         self.preferred = self.names[-1]
         
@@ -34,20 +38,22 @@ class Category():
         return self.min <= i < self.max
         
     def is_word(self, word):
-        return (word in self.names)
+        return word in self.names
         
     def __str__(self):
         return '{} {} {}'.format(self.min, self.max, ','.join(str(n) for n in self.names))
 
-class Player():
-    def __init__(self,name):
+
+class Player:
+    def __init__(self, name):
         self.name = name
-        self.categories = [Category((0,360),[Name()])]
+        self.categories = [Category((0, 360), [Name()])]
         
-    def perceive(self,colors):
+    def perceive(self, colors):
         h = colors[0]
-        print 'Topic:',h
+        print('Topic:', h)
         rest = colors[1:]
+        topic_cat = None
         
         for cat in self.categories:
             if cat.is_in(h):
@@ -57,7 +63,7 @@ class Player():
         collisions = [obj for obj in rest if topic_cat.is_in(obj)]
         
         if not collisions:
-            print [str(cat) for cat in self.categories]
+            print([str(cat) for cat in self.categories])
             return topic_cat
         
         a_list = [i for i in collisions if i < h]
@@ -69,26 +75,30 @@ class Player():
         b = min(b_list)
         
         if a > b:
-            a,b = b,a
+            a, b = b, a
+
+        cat0 = ()
+        cat1 = ()
+        cat2 = ()
             
         if a != -1 and b != 361:
-            cat0 = (topic_cat.min,(a+h)/2)
-            cat1 = ((a+h)/2,(b+h)/2)
-            cat2 = ((b+h)/2,topic_cat.max)
+            cat0 = (topic_cat.min, (a+h)/2)
+            cat1 = ((a+h)/2, (b+h)/2)
+            cat2 = ((b+h)/2, topic_cat.max)
         elif a == -1:
-            cat0 = (topic_cat.min,(b+h)/2)
-            cat1 = ((b+h)/2,topic_cat.max)
+            cat0 = (topic_cat.min, (b+h)/2)
+            cat1 = ((b+h)/2, topic_cat.max)
             cat2 = ()
         elif b == 361:
-            cat0 = (topic_cat.min,(a+h)/2)
-            cat1 = ((a+h)/2,topic_cat.max)
+            cat0 = (topic_cat.min, (a+h)/2)
+            cat1 = ((a+h)/2, topic_cat.max)
             cat2 = ()
             
         self.categories.remove(topic_cat)
-        self.categories.append(Category(cat0,topic_cat.names+[Name()]))
-        self.categories.append(Category(cat1,topic_cat.names+[Name()]))
+        self.categories.append(Category(cat0, topic_cat.names+[Name()]))
+        self.categories.append(Category(cat1, topic_cat.names+[Name()]))
         if cat2:
-            self.categories.append(Category(cat2,topic_cat.names+[Name()]))
+            self.categories.append(Category(cat2, topic_cat.names+[Name()]))
         
         for cat in self.categories:
             if cat.is_in(h):
@@ -98,44 +108,45 @@ class Player():
         return topic_cat
         
     def listen(self, scene, word):
-        #The hearer receives the transmitted word and,
-        #looking at its repertoire, identifies the set of all categories
+        # The hearer receives the transmitted word and,
+        # looking at its repertoire, identifies the set of all categories
         topic_cats = []
-        #(i) whose inventories contain the transmitted word and
+        # (i) whose inventories contain the transmitted word and
         for cat in self.categories:
             if cat.is_word(word):
-        #(ii) that are associated to at least one object in the scene
+                # (ii) that are associated to at least one object in the scene
                 for color in scene:
                     if cat.is_in(color):
                         topic_cats.append(cat)
                         break
-        print [str(cat) for cat in self.categories]
-        raw_input()
-        
-words = Wordlist()
+        print([str(cat) for cat in self.categories])
+        input()
+
+
 def game(iterations):
-    num_players = random.randint(2,MAX_PLAYERS)
-    print "Number of Players {}".format(num_players)
+    num_players = random.randint(2, MAX_PLAYERS)
+    print("Number of Players {}".format(num_players))
     players = [Player(str(i)) for i in range(num_players)]
     
     for t in range(iterations):
-        speaker,hearer = random.sample(players,2)
-        print "Speaker {} Hearer {}".format(speaker.name,hearer.name)
+        speaker, hearer = random.sample(players, 2)
+        print("Speaker {} Hearer {}".format(speaker.name, hearer.name))
         
-        M = 5
-        items = range(360)
+        m = 5
+        items = list(range(360))
         random.shuffle(items)
-        items = items[0:M]
-        print "Scene {}".format(items)
+        items = items[0:m]
+        print("Scene {}".format(items))
         
         topic_cat = speaker.perceive(items)
         word = topic_cat.preferred
         
-        print topic_cat
-        print word
+        print(topic_cat)
+        print(word)
         
-        hearer.listen(items,word)
-        
-    
-if __name__== "__main__":
+        hearer.listen(items, word)
+
+
+words = Wordlist()
+if __name__ == "__main__":
     game(100)
